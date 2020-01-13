@@ -3,7 +3,7 @@ from HTML_templater import app
 import unittest
 
 
-class ConvertTestCase(unittest.TestCase):
+class FlaskViewTestCase(unittest.TestCase):
     def setUp(self) -> None:
         app.testing = True
 
