@@ -20,7 +20,7 @@ class TreeProcessor(object):
             params={
                 "type_name": asset_type_name,
                 "template_type": "proof_html"})
-        return response.json()
+        return response.text
 
     def run(self, tree: dict) -> str:
         if "type" not in tree:
