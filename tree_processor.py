@@ -13,14 +13,14 @@ class TreeProcessor(object):
         self.template_cache = {}
 
     def get_template(self, asset_type_name: str) -> dict:
-        if asset_type_name in self.template_cache.keys():
-            return self.template_cache[asset_type_name]
-        response = requests.get(
-            self.asset_storm_url + "/get_template",
-            params={
-                "type_name": asset_type_name,
-                "template_type": "proof_html"})
-        return response.text
+        if asset_type_name not in self.template_cache.keys():
+            response = requests.get(
+                self.asset_storm_url + "/get_template",
+                params={
+                    "type_name": asset_type_name,
+                    "template_type": "proof_html"})
+            self.template_cache[asset_type_name] = response.text
+        return self.template_cache[asset_type_name]
 
     def run(self, tree: dict) -> str:
         if "type" not in tree:

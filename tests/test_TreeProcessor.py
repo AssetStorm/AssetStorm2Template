@@ -25,6 +25,7 @@ class TreeProcessorTestCast(unittest.TestCase):
         tp = TreeProcessor(asset_storm_url=mock_test_url)
         template = tp.get_template("foo")
         self.assertEqual("<x>{{a}}</x><y>{{for(b)}}<z>{{b}}</z>{{endfor}}</y>", template)
+        self.assertIn("foo", tp.template_cache.keys())
 
     def test_run_no_recursion(self):
         tp = TreeProcessor()
