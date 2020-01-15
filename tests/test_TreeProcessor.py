@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from tree_processor import TreeProcessor
 import unittest
+import responses
 
 
 class TreeProcessorTestCast(unittest.TestCase):
@@ -9,6 +10,19 @@ class TreeProcessorTestCast(unittest.TestCase):
         tp.template_cache = {
             "foo": "<x>{{a}}</x><y>{{for(b)}}<z>{{b}}</z>{{endfor}}</y>"
         }
+        template = tp.get_template("foo")
+        self.assertEqual("<x>{{a}}</x><y>{{for(b)}}<z>{{b}}</z>{{endfor}}</y>", template)
+
+    @responses.activate
+    def test_get_template_from_request(self):
+        mock_test_url = "https://assetstorm.example.com"
+        responses.add(
+            responses.GET,
+            mock_test_url + "/get_template?type_name=foo&template_type=proof_html",
+            status=200,
+            body="<x>{{a}}</x><y>{{for(b)}}<z>{{b}}</z>{{endfor}}</y>"
+        )
+        tp = TreeProcessor(asset_storm_url=mock_test_url)
         template = tp.get_template("foo")
         self.assertEqual("<x>{{a}}</x><y>{{for(b)}}<z>{{b}}</z>{{endfor}}</y>", template)
 
