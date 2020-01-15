@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tree_processor import TreeProcessor
+from tree_processor import TreeProcessor, IllegalAssetStormStructureError
 import unittest
 import responses
 
@@ -26,6 +26,10 @@ class TreeProcessorTestCast(unittest.TestCase):
         template = tp.get_template("foo")
         self.assertEqual("<x>{{a}}</x><y>{{for(b)}}<z>{{b}}</z>{{endfor}}</y>", template)
         self.assertIn("foo", tp.template_cache.keys())
+
+    def test_no_type_in_request(self):
+        tp = TreeProcessor()
+        self.assertRaises(IllegalAssetStormStructureError, tp.run, ({"a": "123"},))
 
     def test_run_no_recursion(self):
         tp = TreeProcessor()
