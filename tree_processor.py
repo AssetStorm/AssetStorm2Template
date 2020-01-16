@@ -8,8 +8,11 @@ class IllegalAssetStormStructureError(Exception):
 
 
 class TreeProcessor(object):
-    def __init__(self, asset_storm_url="https://assetstorm.pinae.net"):
+    def __init__(self,
+                 asset_storm_url: str = "https://assetstorm.pinae.net",
+                 template_type: str = "proof_html"):
         self.asset_storm_url = asset_storm_url
+        self.template_type = template_type
         self.template_cache = {}
 
     def get_template(self, asset_type_name: str) -> dict:
@@ -18,7 +21,7 @@ class TreeProcessor(object):
                 self.asset_storm_url + "/get_template",
                 params={
                     "type_name": asset_type_name,
-                    "template_type": "proof_html"})
+                    "template_type": self.template_type})
             self.template_cache[asset_type_name] = response.text
         return self.template_cache[asset_type_name]
 

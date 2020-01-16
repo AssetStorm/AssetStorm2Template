@@ -19,7 +19,7 @@ class FlaskViewTestCase(unittest.TestCase):
 
     def test_request_content_no_type(self):
         with app.test_client() as test_client:
-            response = test_client.post('/', data='{"foo": "bar"}')
+            response = test_client.post('/', data='{"tree": {"foo": "bar"}}')
             answer = response.get_json()
             self.assertEqual(400, response.status_code)
         self.assertIn("error", answer)
@@ -34,16 +34,16 @@ class FlaskViewTestCase(unittest.TestCase):
         }
         for type_name in templates.keys():
             responses.add(responses.GET, "https://assetstorm.pinae.net/get_template?type_name=" +
-                          type_name + "&template_type=proof_html", status=200, body=templates[type_name])
+                          type_name + "&template_type=test", status=200, body=templates[type_name])
         with app.test_client() as test_client:
-            response = test_client.post('/', data=json.dumps({
+            response = test_client.post('/', data=json.dumps({"template_type": "test", "tree": {
                 "type": "article",
                 "blocks": [
                     {"type": "para", "text": "Foo sentence."},
                     {"type": "list", "items": ["a", "b", "c"]},
                     {"type": "para", "text": "Bar sentence."}
                 ]
-            }))
+            }}))
             self.assertEqual('text/plain', response.mimetype)
             self.assertIn('Content-Type', response.headers)
             self.assertEqual('text/plain; charset=utf-8', response.headers.get('Content-Type'))
