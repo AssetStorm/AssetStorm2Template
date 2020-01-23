@@ -51,5 +51,10 @@ def template():
     return build_text_response(rendered_template)
 
 
+@app.route("/live", methods=['GET'])
+def live():
+    return build_text_response("", status=200)
+
+
 if __name__ == "__main__":  # pragma: no mutate
     app.run()  # pragma: no cover
