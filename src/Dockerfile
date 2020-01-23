@@ -8,6 +8,6 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
-EXPOSE 8080
+EXPOSE 8083
 
-CMD bash -c "gunicorn --workers=3 templater.py:app -b 0.0.0.0:8080"
+CMD bash -c "gunicorn --workers=3 templater.py:app -b 0.0.0.0:8083"
