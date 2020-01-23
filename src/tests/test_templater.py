@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from HTML_templater import app
+from templater import app
 import unittest
 import responses
 import json
