@@ -2,6 +2,7 @@
 from flask import Flask, request, Response
 from typing import Union
 from tree_processor import TreeProcessor, IllegalAssetStormStructureError
+import requests
 import json
 import os
 app = Flask(__name__)
@@ -53,6 +54,17 @@ def template():
 
 @app.route("/live", methods=['GET'])
 def live():
+    try:
+        request_payload = json.loads(request.get_data(as_text=True))
+    except json.JSONDecodeError:
+        request_payload = {}
+    if "assetstorm_url" in request_payload.keys():
+        assetstorm_url = request_payload["assetstorm_url"]
+    else:
+        assetstorm_url = os.getenv("ASSETSTORM_URL", "https://assetstorm.pinae.net")
+    response = requests.get(assetstorm_url + "/live")
+    if response.status_code != 200:
+        return build_text_response("", status=400)
     return build_text_response("", status=200)
 
 
