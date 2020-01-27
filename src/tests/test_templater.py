@@ -60,7 +60,7 @@ class IntegrationTest(unittest.TestCase):
     def setUp(self) -> None:
         app.testing = True
 
-    def test_get_raw_template(self):
+    def test_render_raw_template(self):
         with app.test_client() as test_client:
             response = test_client.post('/', data=json.dumps({
                 "assetstorm_url": "http://localhost:8081",
