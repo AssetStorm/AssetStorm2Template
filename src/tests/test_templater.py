@@ -54,3 +54,24 @@ class FlaskViewTestCase(unittest.TestCase):
                          '<ul><li>a</li><li>b</li><li>c</li></ul>' +
                          '<p>Bar sentence.</p>' +
                          '</div>', answer)
+
+
+class IntegrationTest(unittest.TestCase):
+    def setUp(self) -> None:
+        app.testing = True
+
+    def test_get_raw_template(self):
+        with app.test_client() as test_client:
+            response = test_client.post('/', data=json.dumps({
+                "assetstorm_url": "http://localhost:8081",
+                "template_type": "raw",
+                "tree": {
+                    "type": "block-heading",
+                    "heading": "Foo"
+                }}))
+            self.assertEqual('text/plain', response.mimetype)
+            self.assertIn('Content-Type', response.headers)
+            self.assertEqual('text/plain; charset=utf-8', response.headers.get('Content-Type'))
+            answer = str(response.data, encoding='utf-8')
+            self.assertEqual(200, response.status_code)
+            self.assertEqual("Foo\n\n", answer)
