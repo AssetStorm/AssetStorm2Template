@@ -18,8 +18,9 @@ class TreeProcessor(object):
     def get_template(self, asset_type_name: str) -> dict:
         if asset_type_name not in self.template_cache.keys():
             response = requests.get(
-                self.asset_storm_url + "/get_template?type_name=" + asset_type_name +
-                "&template_type=" + self.template_type)
+                self.asset_storm_url + "/get_template", params={
+                    "type_name": asset_type_name,
+                    "template_type": self.template_type})
             self.template_cache[asset_type_name] = response.text
         return self.template_cache[asset_type_name]
 
