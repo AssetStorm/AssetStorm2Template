@@ -25,7 +25,7 @@ class TreeProcessor(object):
         return self.template_cache[asset_type_name]
 
     def run(self, tree: dict) -> str:
-        if "type" not in tree:
+        if "type" not in tree.keys():
             raise IllegalAssetStormStructureError
         consumable_template = self.get_template(tree["type"])
         for key in tree.keys():
