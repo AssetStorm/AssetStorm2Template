@@ -29,7 +29,7 @@ class TreeProcessorTestCast(unittest.TestCase):
 
     def test_no_type_in_request(self):
         tp = TreeProcessor()
-        self.assertRaises(IllegalAssetStormStructureError, tp.run, ({"a": "123"},))
+        self.assertRaises(IllegalAssetStormStructureError, tp.run, {"a": "123"})
 
     def test_run_no_recursion(self):
         tp = TreeProcessor()
@@ -67,3 +67,20 @@ class TreeProcessorTestCast(unittest.TestCase):
         self.assertEqual("<x><div>xyz - https://foo.bar/baz</div></x>" +
                          "<y><z>56</z><z>89</z><z>08</z><z>15</z></y>" +
                          "[{1}][{2}][{3}]", res)
+
+    def test_paragraphs_with_numbering(self):
+        tp = TreeProcessor()
+        tp.template_cache = {
+            "article": "<article>{{for(content)}}{{content}}{{endfor}}</article>",
+            "paragraph": "<p id=\"{{$id}}\">{{text}}</p>",
+            "code": "<code>{{x}}</code>"
+        }
+        res = tp.run({
+            "type": "article",
+            "content": [
+                {'type': 'paragraph', 'text': 'Foo'},
+                {'type': 'code', 'x': 'print(x)'},
+                {'type': 'paragraph', 'text': 'Bar'}
+            ]
+        })
+        self.assertEqual("<article><p id=\"e0\">Foo</p><code>print(x)</code><p id=\"e1\">Bar</p></article>", res)

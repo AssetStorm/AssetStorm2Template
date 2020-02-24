@@ -121,6 +121,7 @@ class MyTestCase(unittest.TestCase):
             "content: MD_BLOCK\n-->\n\n" +
             "Text des Artikels.\n\nMehrere Absätze\n\n<!---\n" +
             "article_link:\n" +
+            "  type: article-link-container\n" +
             "  link_description: Dokumentation\n" +
             "  link: <ctlink />\n" +
             "bibliography:\n" +
