@@ -68,6 +68,73 @@ class MyTestCase(unittest.TestCase):
             "<div class=\"bibliography\"><h3>Literatur</h3><ol></ol></div>" +
             "</article-standard>", answer)
 
+    def test_standard_article_markdown(self):
+        article = {
+            'type': 'article-standard',
+            'x_id': '1234567890123456789',
+            'catchphrase': 'Testartikel',
+            'column': 'Wissen',
+            'working_title': 'Standard-Testartikel',
+            'title': 'Titel',
+            'subtitle': 'Untertitel',
+            'teaser': 'Vorlauftext',
+            'author': 'Pina Merkert',
+            'content': [
+                {'type': 'block-paragraph', 'spans': [
+                    {'type': 'span-regular', 'text': 'Text des Artikels.'}]},
+                {'type': 'block-paragraph', 'spans': [
+                    {'type': 'span-regular', 'text': 'Mehrere Absätze'}]}],
+            'article_link': {'link': {'type': 'span-ct-link'},
+                             'link_description': 'Dokumentation',
+                             'type': 'article-link-container'},
+            'bibliography': [
+                {'type': 'bibliography-reference-ct-intern',
+                 'author': 'Max Mustermann',
+                 'title': 'Referenzartikel',
+                 'subtitle': 'So kann es aussehen',
+                 'issue': '13',
+                 'year': '19',
+                 'page': '173'},
+                {'type': 'bibliography-reference-web',
+                 'url': 'https://example.com'}
+            ]}
+        tree = {'assetstorm_url': self.as_url,
+                'template_type': 'markdown',
+                'tree': article}
+        with app.test_client() as test_client:
+            response = test_client.post('/', data=json.dumps(tree, ensure_ascii=False).encode('utf-8'))
+            self.assertEqual('text/plain', response.mimetype)
+            self.assertIn('Content-Type', response.headers)
+            self.assertEqual('text/plain; charset=utf-8', response.headers.get('Content-Type'))
+            answer = str(response.data, encoding='utf-8')
+            self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            "<!---\ntype: article-standard\nx_id: 1234567890123456789\ncatchphrase: Testartikel\ncolumn: Wissen\n" +
+            "working_title: Standard-Testartikel\ntitle: MD_BLOCK\n-->\n\n" +
+            "# Titel\n\n<!---\n" +
+            "subtitle: MD_BLOCK\n-->\n\n" +
+            "## Untertitel\n\n<!---\n" +
+            "teaser: MD_BLOCK\n-->\n\n" +
+            "**Vorlauftext**\n\n<!---\n" +
+            "author: MD_BLOCK\n-->\n\n" +
+            "Pina Merkert\n\n<!---\n" +
+            "content: MD_BLOCK\n-->\n\n" +
+            "Text des Artikels.\n\nMehrere Absätze\n\n<!---\n" +
+            "article_link:\n" +
+            "  link_description: Dokumentation\n" +
+            "  link: <ctlink />\n" +
+            "bibliography:\n" +
+            "  - type: bibliography-reference-ct-intern\n" +
+            "    author: Max Mustermann\n" +
+            "    title: Referenzartikel\n" +
+            "    subtitle: So kann es aussehen\n" +
+            "    issue: 13\n" +
+            "    year: 19\n" +
+            "    page: 173\n" +
+            "  - type: bibliography-reference-web\n" +
+            "    url: https://example.com\n" +
+            "-->", answer)
+
 
 if __name__ == '__main__':
     unittest.main()
