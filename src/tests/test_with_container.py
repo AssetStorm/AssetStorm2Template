@@ -136,6 +136,130 @@ class MyTestCase(unittest.TestCase):
             "    url: https://example.com\n" +
             "-->", answer)
 
+    def get_toc_article(self) -> dict:
+        return {
+            'type': 'article-table-of-contents',
+            'title': 'Inhaltsverzeichnis',
+            'x_id': '1234567890123456789',
+            'content': [
+                {'type': 'toc-block-main', 'entries': [
+                    {'type': 'toc-heading-container', 'title': 'Block 1', 'entries': [
+                        {'type': 'toc-small', 'spans': [
+                            {'type': 'span-strong', 'text': 'Kurztext 1'},
+                            {'type': 'span-regular', 'text': ' mit Ergänzung'}
+                        ], 'page': '13'},
+                        {'type': 'toc-small', 'spans': [
+                            {'type': 'span-strong', 'text': 'Kurztext 2'},
+                            {'type': 'span-regular', 'text': ' mit Ergänzung'}
+                        ], 'page': '17'}
+                    ]},
+                    {'type': 'toc-small', 'spans': [
+                        {'type': 'span-strong', 'text': 'Kurztext 3'},
+                        {'type': 'span-regular', 'text': ' mit Ergänzung'}
+                    ], 'page': '21'},
+                    {'type': 'toc-heading-container', 'title': 'Block 2', 'entries': [
+                        {'type': 'toc-small', 'spans': [
+                            {'type': 'span-strong', 'text': 'Kurztext 4'},
+                            {'type': 'span-regular', 'text': ' mit Ergänzung'}
+                        ], 'page': '130'},
+                        {'type': 'toc-small', 'spans': [
+                            {'type': 'span-strong', 'text': 'Kurztext 5'},
+                            {'type': 'span-regular', 'text': ' mit Ergänzung'}
+                        ], 'page': '134'},
+                        {'type': 'toc-small', 'spans': [
+                            {'type': 'span-strong', 'text': 'Kurztext 6'},
+                            {'type': 'span-regular', 'text': ' mit Ergänzung'}
+                        ], 'page': '138'}
+                    ]}
+                ]}
+            ]
+        }
+
+    def test_toc_sy_xml(self):
+        tree = {'assetstorm_url': self.as_url,
+                'template_type': 'sy_xml',
+                'tree': self.get_toc_article()}
+        with app.test_client() as test_client:
+            response = test_client.post('/', data=json.dumps(tree, ensure_ascii=False).encode('utf-8'))
+            self.assertEqual('text/plain', response.mimetype)
+            self.assertIn('Content-Type', response.headers)
+            self.assertEqual('text/plain; charset=utf-8', response.headers.get('Content-Type'))
+            answer = str(response.data, encoding='utf-8')
+            self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            "<document dbref=\"1234567890123456789\">\n" +
+            "<title>Inhaltsverzeichnis</title>\n" +
+            "<textel>\n" +
+            "<toc>\n" +
+            "<tocentry>\n" +
+            "Block 1\n" +
+            "<tocentry page=\"13\">\n" +
+            "<bold>Kurztext 1</bold> mit Ergänzung\n" +
+            "</tocentry>\n" +
+            "<tocentry page=\"17\">\n" +
+            "<bold>Kurztext 2</bold> mit Ergänzung\n" +
+            "</tocentry>\n" +
+            "</tocentry>\n" +
+            "<tocentry page=\"21\">\n" +
+            "<bold>Kurztext 3</bold> mit Ergänzung\n" +
+            "</tocentry>\n" +
+            "<tocentry>\n" +
+            "Block 2\n" +
+            "<tocentry page=\"130\">\n" +
+            "<bold>Kurztext 4</bold> mit Ergänzung\n" +
+            "</tocentry>\n" +
+            "<tocentry page=\"134\">\n" +
+            "<bold>Kurztext 5</bold> mit Ergänzung\n" +
+            "</tocentry>\n" +
+            "<tocentry page=\"138\">\n" +
+            "<bold>Kurztext 6</bold> mit Ergänzung\n" +
+            "</tocentry>\n" +
+            "</tocentry>\n" +
+            "</toc>\n" +
+            "</textel>\n" +
+            "</document>", answer)
+
+    def test_toc_markdown(self):
+        tree = {'assetstorm_url': self.as_url,
+                'template_type': 'markdown',
+                'tree': self.get_toc_article()}
+        with app.test_client() as test_client:
+            response = test_client.post('/', data=json.dumps(tree, ensure_ascii=False).encode('utf-8'))
+            self.assertEqual('text/plain', response.mimetype)
+            self.assertIn('Content-Type', response.headers)
+            self.assertEqual('text/plain; charset=utf-8', response.headers.get('Content-Type'))
+            answer = str(response.data, encoding='utf-8')
+            self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            "<!---\ntype: article-table-of-contents\nx_id: 1234567890123456789\ntitle: MD_BLOCK\n-->\n\n" +
+            "# Inhaltsverzeichnis\n\n" +
+            "<!---\ncontent: MD_BLOCK\n-->\n\n" +
+                "<!---\ntype: toc-block\nentries: MD_BLOCK\n-->\n\n" +
+                    "<!---\ntype: toc-heading-container\ntitle: Block 1\nentries: MD_BLOCK\n-->\n\n" +
+                        "<!---\ntype: toc-small\npage: 13\ntext: MD_BLOCK\n-->\n\n" +
+                        "**Kurztext 1** mit Ergänzung\n\n" +
+                        "<!--- -->\n\n" +
+                        "<!---\ntype: toc-small\npage: 17\ntext: MD_BLOCK\n-->\n\n" +
+                        "**Kurztext 2** mit Ergänzung\n\n" +
+                        "<!--- -->\n\n" +
+                    "<!--- -->\n\n" +
+                    "<!---\ntype: toc-small\npage: 21\ntext: MD_BLOCK\n-->\n\n" +
+                    "**Kurztext 3** mit Ergänzung\n\n" +
+                    "<!--- -->\n\n" +
+                    "<!---\ntype: toc-heading-container\ntitle: Block 2\nentries: MD_BLOCK\n-->\n\n" +
+                        "<!---\ntype: toc-small\npage: 130\ntext: MD_BLOCK\n-->\n\n" +
+                        "**Kurztext 4** mit Ergänzung\n\n" +
+                        "<!--- -->\n\n" +
+                        "<!---\ntype: toc-small\npage: 134\ntext: MD_BLOCK\n-->\n\n" +
+                        "**Kurztext 5** mit Ergänzung\n\n" +
+                        "<!--- -->\n\n" +
+                        "<!---\ntype: toc-small\npage: 138\ntext: MD_BLOCK\n-->\n\n" +
+                        "**Kurztext 6** mit Ergänzung\n\n" +
+                        "<!--- -->\n\n" +
+                    "<!--- -->\n\n" +
+                "<!--- -->\n\n" +
+            "<!--- -->", answer)
+
 
 if __name__ == '__main__':
     unittest.main()
