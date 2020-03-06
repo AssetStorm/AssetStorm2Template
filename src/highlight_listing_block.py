@@ -37,4 +37,4 @@ def highlight_sy_xml(lang: str, code: str) -> str:
     tree = ET.fromstring("<codeblock>" + html_highlighted_code + "</codeblock>")
     tree.set('coding_language', lang)
     tree = replace_highlight_tags(tree)
-    return str(ET.tostring(tree, encoding='utf-8'), encoding='utf-8')
+    return ET.tostring(tree, encoding='unicode')
