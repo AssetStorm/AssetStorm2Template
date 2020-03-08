@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
 import re
+from highlight_listing_block import highlight_sy_xml
 
 
 class IllegalAssetStormStructureError(Exception):
@@ -36,6 +37,17 @@ class TreeProcessor(object):
             mtchs = re.match(e_id_regex, cons_tmpl, re.MULTILINE)
         return cons_tmpl
 
+    def apply_function_regex(self, cons_tmpl: str, function: callable, key: str, content) -> str:
+        function_regex = r"^(?P<start_part>[\s\S]*?){{" + function.__name__ + \
+                         r"\(" + key + r"\)}}(?P<end_part>[\s\S]*)"
+        mtchs = re.match(function_regex, cons_tmpl, re.MULTILINE)
+        while mtchs:
+            cons_tmpl = mtchs.groupdict()["start_part"] + \
+                        function(content) + \
+                        mtchs.groupdict()["end_part"]
+            mtchs = re.match(function_regex, cons_tmpl, re.MULTILINE)
+        return cons_tmpl
+
     def run(self, tree: dict) -> str:
         if "type" not in tree.keys():
             raise IllegalAssetStormStructureError
@@ -50,6 +62,9 @@ class TreeProcessor(object):
                 for list_item in tree[key]:
                     consumable_list_template = list_matches.groupdict()["list_template"]
                     consumable_list_template = self.apply_e_id_regex(consumable_list_template)
+                    consumable_list_template = self.apply_function_regex(
+                        consumable_list_template, highlight_sy_xml, key,
+                        self.run(list_item) if type(list_item) is dict else list_item)
                     matches = re.match(key_regex, consumable_list_template, re.MULTILINE)
                     while matches:
                         if type(list_item) is dict:
@@ -66,6 +81,9 @@ class TreeProcessor(object):
                                       list_matches.groupdict()["end_part"]
                 list_matches = re.match(key_list_regex, consumable_template, re.MULTILINE)
             consumable_template = self.apply_e_id_regex(consumable_template)
+            consumable_template = self.apply_function_regex(
+                consumable_template, highlight_sy_xml, key,
+                self.run(tree[key]) if type(tree[key]) is dict else tree[key])
             matches = re.match(key_regex, consumable_template, re.MULTILINE)
             while matches:
                 if type(tree[key]) is dict:

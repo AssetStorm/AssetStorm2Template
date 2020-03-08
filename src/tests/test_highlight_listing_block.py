@@ -3,6 +3,19 @@ from highlight_listing_block import highlight_sy_xml
 
 
 class HighlighterTestCase(unittest.TestCase):
+    def test_python_float_sy_xml(self):
+        self.assertEqual("<codeblock coding_language=\"python\"><number>13.237</number></codeblock>",
+                         highlight_sy_xml("python", "13.237"))
+
+    def test_python_function_sy_xml(self):
+        code = "def f(x: int) -> int:\n  return x - 1"
+        self.assertEqual("<codeblock coding_language=\"python\"><keyword>def</keyword> <function>f</function>" +
+                         "<punctuation>(</punctuation>x<punctuation>:</punctuation> int" +
+                         "<punctuation>)</punctuation> <operator>-</operator><operator>&gt;</operator> int" +
+                         "<punctuation>:</punctuation>\n" +
+                         "  <keyword>return</keyword> x <operator>-</operator> <number>1</number></codeblock>",
+                         highlight_sy_xml("python", code))
+
     def test_python_sy_xml(self):
         code = "​print(\"foo\")\n" + \
                "for i in range(2):\n" + \
@@ -13,15 +26,16 @@ class HighlighterTestCase(unittest.TestCase):
                "aaabc(2, \"3\")\n" + \
                "value = type(r\"2\") is bytes\n"
         self.assertEqual(
-            "<codeblock coding_language=\"python\">\n" +
-            "<keyword>print</keyword><punctuation>(</punctuation>" +
+            "<codeblock coding_language=\"python\">​" +
+            "<builtin>print</builtin><punctuation>(</punctuation>" +
             "<string>\"foo\"</string><punctuation>)</punctuation>\n" +
             "<keyword>for</keyword> i <keyword>in</keyword> " +
             "<builtin>range</builtin><punctuation>(</punctuation><number>2</number>" +
             "<punctuation>)</punctuation><punctuation>:</punctuation>\n" +
             "  <keyword>if</keyword> i <operator>&lt;</operator> <number>1</number><punctuation>:</punctuation>\n" +
             "    foo_bar <operator>=</operator> <punctuation>[</punctuation>" +
-            "x<punctuation>.</punctuation>baz<punctuation>(</punctuation><number>3.2</number>" +
+            "x<punctuation>.</punctuation>baz<punctuation>(</punctuation>" +
+            "<number>3.2</number>" +
             "<punctuation>)</punctuation> <keyword>for</keyword> x <keyword>in</keyword> " +
             "<builtin>enumerate</builtin><punctuation>(</punctuation><punctuation>{</punctuation>" +
             "<string>\"a\"</string><punctuation>:</punctuation> <number>1</number>" +
@@ -31,16 +45,16 @@ class HighlighterTestCase(unittest.TestCase):
             "<punctuation>(</punctuation><punctuation>)</punctuation><punctuation>)</punctuation>" +
             "<punctuation>]</punctuation>\n" +
             "<keyword>def</keyword> <function>aaabc</function><punctuation>(</punctuation>" +
-            "x<punctuation>:</punctuation> <builtin>int</builtin>" +
-            "<punctuation>,</punctuation> y<punctuation>:</punctuation> <builtin>str</builtin>" +
-            "<punctuation>)</punctuation> <operator>-</operator><operator>&gt;</operator> <builtin>list</builtin>" +
+            "x<punctuation>:</punctuation> int" +
+            "<punctuation>,</punctuation> y<punctuation>:</punctuation> str" +
+            "<punctuation>)</punctuation> <operator>-</operator><operator>&gt;</operator> list" +
             "<punctuation>:</punctuation>\n" +
-            "<keyword>return</keyword> <punctuation>[</punctuation>x<punctuation>,</punctuation> y" +
+            "  <keyword>return</keyword> <punctuation>[</punctuation>x<punctuation>,</punctuation> y" +
             "<punctuation>]</punctuation>\n" +
             "aaabc<punctuation>(</punctuation><number>2</number><punctuation>,</punctuation> <string>\"3\"</string>" +
             "<punctuation>)</punctuation>\n" +
-            "value <operator>=</operator> <builtin>type</builtin><punctuation>(</punctuation>r<string>\"2\"</string>" +
-            "<punctuation>)</punctuation> <keyword>is</keyword> <builtin>bytes</builtin>\n" +
+            "value <operator>=</operator> <builtin>type</builtin><punctuation>(</punctuation><string>r\"2\"</string>" +
+            "<punctuation>)</punctuation> <keyword>is</keyword> bytes\n" +
             "</codeblock>", highlight_sy_xml("python", code))
 
 
