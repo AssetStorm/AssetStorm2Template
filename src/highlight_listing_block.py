@@ -98,7 +98,7 @@ def operator_and_punctuation_replacements(tree: ET.Element) -> ET.Element:
     return tree
 
 
-def highlight_sy_xml(lang: str, code: str) -> str:
+def highlight_sy_xml(code: str, tree_processor: object, tree: dict) -> str:
     rt = {
         "string": "string",
         "number": "number",
@@ -169,6 +169,7 @@ def highlight_sy_xml(lang: str, code: str) -> str:
             i += 1
         return tree
 
+    lang = tree_processor.run(tree["language"]) if type(tree["language"]) is dict else tree["language"]
     highlighter_url = os.getenv("HIGHLIGHT_SERVICE_URL", "http://localhost:3000")
     highlighter_response = requests.post(highlighter_url, json={"lang": lang, "code": code})
     html_highlighted_code = highlighter_response.json()["highlighted_code"]

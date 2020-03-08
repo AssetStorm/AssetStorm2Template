@@ -37,13 +37,13 @@ class TreeProcessor(object):
             mtchs = re.match(e_id_regex, cons_tmpl, re.MULTILINE)
         return cons_tmpl
 
-    def apply_function_regex(self, cons_tmpl: str, function: callable, key: str, content) -> str:
+    def apply_function_regex(self, cons_tmpl: str, function: callable, key: str, content: list, tree: dict) -> str:
         function_regex = r"^(?P<start_part>[\s\S]*?){{" + function.__name__ + \
                          r"\(" + key + r"\)}}(?P<end_part>[\s\S]*)"
         mtchs = re.match(function_regex, cons_tmpl, re.MULTILINE)
         while mtchs:
             cons_tmpl = mtchs.groupdict()["start_part"] + \
-                        function(content) + \
+                        function(content, self, tree) + \
                         mtchs.groupdict()["end_part"]
             mtchs = re.match(function_regex, cons_tmpl, re.MULTILINE)
         return cons_tmpl
@@ -64,7 +64,7 @@ class TreeProcessor(object):
                     consumable_list_template = self.apply_e_id_regex(consumable_list_template)
                     consumable_list_template = self.apply_function_regex(
                         consumable_list_template, highlight_sy_xml, key,
-                        self.run(list_item) if type(list_item) is dict else list_item)
+                        list_item, tree)
                     matches = re.match(key_regex, consumable_list_template, re.MULTILINE)
                     while matches:
                         if type(list_item) is dict:
@@ -83,7 +83,7 @@ class TreeProcessor(object):
             consumable_template = self.apply_e_id_regex(consumable_template)
             consumable_template = self.apply_function_regex(
                 consumable_template, highlight_sy_xml, key,
-                self.run(tree[key]) if type(tree[key]) is dict else tree[key])
+                tree[key], tree)
             matches = re.match(key_regex, consumable_template, re.MULTILINE)
             while matches:
                 if type(tree[key]) is dict:

@@ -84,3 +84,24 @@ class TreeProcessorTestCast(unittest.TestCase):
             ]
         })
         self.assertEqual("<article><p id=\"e0\">Foo</p><code>print(x)</code><p id=\"e1\">Bar</p></article>", res)
+
+    def test_python_code_block(self):
+        tp = TreeProcessor(template_type="sy_xml")
+        tp.template_cache = {
+            "article": "<article>{{for(content)}}{{content}}{{endfor}}</article>",
+            "paragraph": "<p id=\"{{$id}}\">{{text}}</p>",
+            "code": "{{highlight_sy_xml(code)}}"
+        }
+        res = tp.run({
+            "type": "article",
+            "content": [
+                {"type": "paragraph", "text": "Para 1"},
+                {"type": "code", "language": "python", "code": "a = 4\nprint(3.2 + a)"},
+                {"type": "paragraph", "text": "Para 2"}
+            ]
+        })
+        self.assertEqual("<article><p id=\"e0\">Para 1</p><codeblock coding_language=\"python\">" +
+                         "a <operator>=</operator> <number>4</number>\n" +
+                         "<builtin>print</builtin><punctuation>(</punctuation>" +
+                         "<number>3.2</number> <operator>+</operator> a<punctuation>)</punctuation>" +
+                         "</codeblock><p id=\"e1\">Para 2</p></article>", res)
